@@ -78,47 +78,77 @@ public class ExecutionTest {
 
     @Test
     void packageExactMatchFalse() {
-        pointcut.setExpression("execution(* hello.aop.*.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop.*.*(..))");
         assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isFalse();
     }
 
     @Test
     void packageMatchSubPackage1() {
-        pointcut.setExpression("execution(* hello.aop.member..*.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop.member..*.*(..))");
         assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
 
     @Test
     void packageMatchSubPackage2() {
-        pointcut.setExpression("execution(* hello.aop..*.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop..*.*(..))");
         assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
 
     // 타입 매칭
     @Test
     void typeExactMatch() {
-        pointcut.setExpression("execution(* hello.aop.member.MemberServiceImpl.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop.member.MemberServiceImpl.*(..))");
         assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
 
     @Test
     void typeMatchSuperType() {
-        pointcut.setExpression("execution(* hello.aop.member.MemberService.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop.member.MemberService.*(..))");
         assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
 
     @Test
     void typeMatchInternal() throws NoSuchMethodException {
-        pointcut.setExpression("execution(* hello.aop.member.MemberServiceImpl.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop.member.MemberServiceImpl.*(..))");
         Method internalMethod = MemberServiceImpl.class.getMethod("internal", String.class);
         assertThat(pointcut.matches(internalMethod, MemberServiceImpl.class)).isTrue();
     }
 
-    //포인트컷으로 지정한 MemberService 는 internal 이라는 이름의 메서드가 없다.
     @Test
     void typeMatchNoSuperTypeMethodFalse() throws NoSuchMethodException {
-        pointcut.setExpression("execution(* hello.aop.member.MemberService.*(..))");
+        pointcut.setExpression("execution(* hello.advanced.aop.member.MemberService.*(..))");
         Method internalMethod = MemberServiceImpl.class.getMethod("internal", String.class);
         assertThat(pointcut.matches(internalMethod, MemberServiceImpl.class)).isFalse();
+    }
+
+    // 파라미터 매칭
+    @Test
+    void argsMatch() {
+        pointcut.setExpression("execution(* *(String))");
+        assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    @Test
+    void argsMatchNoArgs() {
+        pointcut.setExpression("execution(* *())");
+        assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isFalse();
+    }
+
+    @Test
+    void argsMatchStar() {
+        pointcut.setExpression("execution(* *(*))");
+        assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    @Test
+    void argsMatchAll() {
+        pointcut.setExpression("execution(* *(..))");
+        assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+
+    @Test
+    void argsMatchComplex() {
+        pointcut.setExpression("execution(* *(String, ..))");
+        assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
 }
